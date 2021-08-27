@@ -20,6 +20,8 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField] public float maxDistance = 5f;
 
     public float minY = 5f;
+    public float maxY = 30f;
+
 
     private float currentInputX = 0;
     private float currentInputY = 0;
@@ -102,6 +104,7 @@ public class OrbitCamera : MonoBehaviour
             this.currentInputX = Mathf.Lerp(this.currentInputX, 0, inertia);
             this.currentInputY = Mathf.Lerp(this.currentInputY, 0, inertia);
         }
+
     }
 
     void CameraControl()
@@ -109,7 +112,14 @@ public class OrbitCamera : MonoBehaviour
         if (this.currentInputX != 0 || this.currentInputY != 0)
         {
             transform.RotateAround(target.transform.position, Vector3.up, ((this.currentInputX)));
-            transform.RotateAround(target.transform.position, transform.right, -((this.currentInputY)));
+            if(Vector3.Angle(Vector3.up, -transform.forward)>10) //FIX TO AVOID PROBLEM AROUND THE TOP OF THE "SPHERE"
+            {
+                transform.RotateAround(target.transform.position, transform.right, -((this.currentInputY)));
+            }
+            else{
+                transform.RotateAround(target.transform.position, transform.right, -1);
+            }
+
         }
         var distance = Vector3.Distance(this.transform.position, this.targetPosition);
         var distFromTarget = Vector3.Distance(this.transform.position, this.target.position);
@@ -120,7 +130,11 @@ public class OrbitCamera : MonoBehaviour
         {
             if (this.transform.position.y < minY)
             {
-                this.transform.position = new Vector3(this.transform.position.x, minY, this.transform.position.z);
+                this.transform.position = Vector3.Lerp(this.transform.position,new Vector3(this.transform.position.x, minY, this.transform.position.z),0.3f);
+            }
+            if (this.transform.position.y > maxY)
+            {
+                this.transform.position = Vector3.Lerp(this.transform.position, new Vector3(this.transform.position.x, maxY, this.transform.position.z),0.3f);
             }
         }
 
